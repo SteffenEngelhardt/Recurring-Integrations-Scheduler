@@ -323,8 +323,11 @@ namespace RecurringIntegrationsScheduler
             AddCommonTriggerData(ns, cron, trigger);
             cron.Add(
                 new XElement(ns + "cron-expression", trigger.CronExpressionString),
-                new XElement(ns + "time-zone", trigger.TimeZone.StandardName)
+                // Timezone not working with German Language
+                new XElement(ns + "time-zone", "")
+                //new XElement(ns + "time-zone", trigger.TimeZone.StandardName)
             );
+                    
             return cronTrigger;
         }
 

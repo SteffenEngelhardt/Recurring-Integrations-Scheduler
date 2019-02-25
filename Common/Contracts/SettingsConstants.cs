@@ -220,6 +220,12 @@ namespace RecurringIntegrationsScheduler.Common.Contracts
         /// Reverse order
         /// </summary>
         public const string ReverseOrder = "ReverseOrder";
+
+        /// <summary>
+        /// Legal Entity XMl From File
+        /// </summary>
+        public const string LegalEntityFileSeperator = "LegalEntityFileSeperator";
+
         #endregion
 
         #region Processing Job settings

@@ -260,6 +260,9 @@ namespace RecurringIntegrationsScheduler.Forms
                     (UploadJobDetail.JobDataMap[SettingsConstants.PauseJobOnException] != null) &&
                     Convert.ToBoolean(UploadJobDetail.JobDataMap[SettingsConstants.PauseJobOnException].ToString());
 
+                LegalEntityFileSeperator.Text =
+                    UploadJobDetail.JobDataMap[SettingsConstants.LegalEntityFileSeperator]?.ToString() ?? string.Empty;
+
                 Properties.Settings.Default.Save();
             }
             if ((ProcessingJobDetail != null) && (ProcessingTrigger != null))
@@ -583,7 +586,7 @@ namespace RecurringIntegrationsScheduler.Forms
                 {SettingsConstants.RetryCount, retriesCountUpDown.Value.ToString(CultureInfo.InvariantCulture)},
                 {SettingsConstants.RetryDelay, retriesDelayUpDown.Value.ToString(CultureInfo.InvariantCulture)},
                 {SettingsConstants.PauseJobOnException, pauseOnExceptionsCheckBox.Checked.ToString()},
-                {SettingsConstants.IndefinitePause, pauseIndefinitelyCheckBox.Checked.ToString()}
+                {SettingsConstants.IndefinitePause, pauseIndefinitelyCheckBox.Checked.ToString()}                
             };
             if (serviceAuthRadioButton.Checked)
             {
@@ -594,6 +597,9 @@ namespace RecurringIntegrationsScheduler.Forms
                 map.Add(SettingsConstants.UserName, user.Login);
                 map.Add(SettingsConstants.UserPassword, user.Password);
             }
+
+            map.Add(SettingsConstants.LegalEntityFileSeperator, LegalEntityFileSeperator.ToString());
+
             return map;
         }
 
@@ -630,6 +636,9 @@ namespace RecurringIntegrationsScheduler.Forms
                 map.Add(SettingsConstants.UserName, user.Login);
                 map.Add(SettingsConstants.UserPassword, user.Password);
             }
+
+            map.Add(SettingsConstants.LegalEntityFileSeperator, LegalEntityFileSeperator.ToString());
+
             return map;
         }
 

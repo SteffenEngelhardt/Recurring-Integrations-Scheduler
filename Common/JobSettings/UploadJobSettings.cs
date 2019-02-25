@@ -125,7 +125,10 @@ namespace RecurringIntegrationsScheduler.Common.JobSettings
             ReverseOrder = Convert.ToBoolean(dataMap.GetString(SettingsConstants.ReverseOrder));
 
             UploadInOrder = Convert.ToBoolean(dataMap.GetString(SettingsConstants.UploadInOrder));
-        }
+
+            LegalEntityFileSeperator = dataMap.GetString(SettingsConstants.LegalEntityFileSeperator); 
+
+}
 
         #region Members
 
@@ -233,6 +236,10 @@ namespace RecurringIntegrationsScheduler.Common.JobSettings
         /// </value>
         public bool UploadInOrder { get; private set; }
 
+        /// <summary>
+        /// Gets a value that describes an xml tag inside the file that should be uploaded
+        /// </summary>
+        public string LegalEntityFileSeperator { get; private set; }
         #endregion
     }
 }

@@ -30,6 +30,7 @@ namespace RecurringIntegrationsScheduler.Common.Helpers
 
         private readonly Polly.Retry.AsyncRetryPolicy _retryPolicy;
 
+        public string filePath;
         /// <summary>
         /// Initializes a new instance of the <see cref="HttpClientHelper"/> class.
         /// </summary>
@@ -157,6 +158,14 @@ namespace RecurringIntegrationsScheduler.Common.Helpers
                 {
                     if (!string.IsNullOrEmpty(uploadSettings.Company))
                         enqueueUri.Query = "company=" + uploadSettings.Company;
+                    else if (!string.IsNullOrEmpty(uploadSettings.LegalEntityFileSeperator))
+                    {
+                        string company = this.getCompanyFromFilePath(uploadSettings.LegalEntityFileSeperator);
+                        if (!string.IsNullOrEmpty(company))
+                        {
+                            enqueueUri.Query = "company=" + this.getCompanyFromFilePath(uploadSettings.LegalEntityFileSeperator);
+                        }
+                    }
                 }
                 else // Individual file
                 {
@@ -558,6 +567,18 @@ namespace RecurringIntegrationsScheduler.Common.Helpers
             {
                 _httpClient?.Dispose();
             }
+        }
+
+        private string getCompanyFromFilePath(string _seperator)
+        {
+            string company;
+            char seperator = _seperator.ToCharArray()[0];
+
+            string[] fileElements = filePath.Split(seperator);
+
+            company = fileElements[0];
+
+            return company;
         }
     }
 }

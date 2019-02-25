@@ -206,6 +206,9 @@ namespace RecurringIntegrationsScheduler.Job
                             Log.DebugFormat(CultureInfo.InvariantCulture, string.Format(Resources.Job_0_Uploading_file_1_File_size_2_bytes, _context.JobDetail.Key, dataMessage.FullPath.Replace(@"{", @"{{").Replace(@"}", @"}}"), sourceStream.Length));
 
                         // Post enqueue file request
+
+                        _httpClientHelper.filePath = dataMessage.FullPath;
+
                         var response = await _httpClientHelper.PostStreamRequestAsync(_httpClientHelper.GetEnqueueUri(), sourceStream, dataMessage.Name);
                         sourceStream.Close();
                         sourceStream.Dispose();
