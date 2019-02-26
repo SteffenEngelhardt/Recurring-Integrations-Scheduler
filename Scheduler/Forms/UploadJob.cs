@@ -598,7 +598,7 @@ namespace RecurringIntegrationsScheduler.Forms
                 map.Add(SettingsConstants.UserPassword, user.Password);
             }
 
-            map.Add(SettingsConstants.LegalEntityFileSeperator, LegalEntityFileSeperator.ToString());
+            map.Add(SettingsConstants.LegalEntityFileSeperator, LegalEntityFileSeperator.Text);
 
             return map;
         }
@@ -637,7 +637,7 @@ namespace RecurringIntegrationsScheduler.Forms
                 map.Add(SettingsConstants.UserPassword, user.Password);
             }
 
-            map.Add(SettingsConstants.LegalEntityFileSeperator, LegalEntityFileSeperator.ToString());
+            map.Add(SettingsConstants.LegalEntityFileSeperator, LegalEntityFileSeperator.Text);
 
             return map;
         }
