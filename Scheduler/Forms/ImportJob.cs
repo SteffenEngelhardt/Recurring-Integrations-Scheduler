@@ -263,6 +263,10 @@ namespace RecurringIntegrationsScheduler.Forms
                 importFromPackagePath = ImportJobDetail.JobDataMap[SettingsConstants.ImportFromPackageActionPath]?.ToString() ?? OdataActionsConstants.ImportFromPackageActionPath;
                 getAzureWriteUrlPath = ImportJobDetail.JobDataMap[SettingsConstants.GetAzureWriteUrlActionPath]?.ToString() ?? OdataActionsConstants.GetAzureWriteUrlActionPath;
 
+                LegalEntityFileSeperator.Text =
+                    ImportJobDetail.JobDataMap[SettingsConstants.LegalEntityFileSeperator]?.ToString() ?? string.Empty;
+
+
                 Properties.Settings.Default.Save();
             }
             if ((ExecutionJobDetail != null) && (ExecutionTrigger != null))
@@ -430,7 +434,8 @@ namespace RecurringIntegrationsScheduler.Forms
             if (string.IsNullOrEmpty(processingErrorsFolderTextBox.Text) && useMonitoringJobCheckBox.Checked)
                 message.AppendLine(Resources.Processing_errors_folder_is_not_selected);
 
-            if (string.IsNullOrEmpty(legalEntityTextBox.Text))
+            if (string.IsNullOrEmpty(legalEntityTextBox.Text)
+                && string.IsNullOrEmpty(LegalEntityFileSeperator.Text))
                 message.AppendLine(Resources.Legal_entity_is_missing);
 
             if (string.IsNullOrEmpty(dataProject.Text))
@@ -587,6 +592,9 @@ namespace RecurringIntegrationsScheduler.Forms
                 map.Add(SettingsConstants.UserName, user.Login);
                 map.Add(SettingsConstants.UserPassword, user.Password);
             }
+
+            map.Add(SettingsConstants.LegalEntityFileSeperator, LegalEntityFileSeperator.Text);
+
             return map;
         }
 
@@ -626,6 +634,9 @@ namespace RecurringIntegrationsScheduler.Forms
                 map.Add(SettingsConstants.UserName, user.Login);
                 map.Add(SettingsConstants.UserPassword, user.Password);
             }
+
+            map.Add(SettingsConstants.LegalEntityFileSeperator, LegalEntityFileSeperator.Text);
+
             return map;
         }
 

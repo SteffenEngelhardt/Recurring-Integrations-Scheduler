@@ -160,10 +160,10 @@ namespace RecurringIntegrationsScheduler.Common.Helpers
                         enqueueUri.Query = "company=" + uploadSettings.Company;
                     else if (!string.IsNullOrEmpty(uploadSettings.LegalEntityFileSeperator))
                     {
-                        string company = this.getCompanyFromFilePath(uploadSettings.LegalEntityFileSeperator);
+                        string company = FileHelper.getCompanyFromFilePath(filePath, uploadSettings.LegalEntityFileSeperator);
                         if (!string.IsNullOrEmpty(company))
                         {
-                            enqueueUri.Query = "company=" + this.getCompanyFromFilePath(uploadSettings.LegalEntityFileSeperator);
+                            enqueueUri.Query = "company=" + company;
                         }
                     }
                 }
@@ -174,6 +174,14 @@ namespace RecurringIntegrationsScheduler.Common.Helpers
                     // Append company if it is specified
                     if (!string.IsNullOrEmpty(uploadSettings.Company))
                         enqueueQuery += "&company=" + uploadSettings.Company;
+                    else if (!string.IsNullOrEmpty(uploadSettings.LegalEntityFileSeperator))
+                    {
+                        string company = FileHelper.getCompanyFromFilePath(filePath, uploadSettings.LegalEntityFileSeperator);
+                        if (!string.IsNullOrEmpty(company))
+                        {
+                            enqueueUri.Query = "&company=" + company;
+                        }
+                    }
                     enqueueUri.Query = enqueueQuery;
                 }
                 return _enqueueUri = enqueueUri.Uri;
@@ -572,9 +580,10 @@ namespace RecurringIntegrationsScheduler.Common.Helpers
         private string getCompanyFromFilePath(string _seperator)
         {
             string company;
-            char seperator = _seperator.ToCharArray()[0];
 
-            string[] fileElements = filePath.Split(seperator);
+            char[] seperator = _seperator.ToCharArray();
+            string filename = Path.GetFileName(filePath);
+            string[] fileElements = filename.Split(seperator[0]);
 
             company = fileElements[0];
 

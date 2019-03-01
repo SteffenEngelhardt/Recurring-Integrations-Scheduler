@@ -135,6 +135,7 @@ namespace RecurringIntegrationsScheduler.Common.JobSettings
                     throw new JobExecutionException(string.Format(CultureInfo.InvariantCulture, Resources.Verification_of_package_template_location_failed_0, PackageTemplate), ex);
                 }
             }
+            LegalEntityFileSeperator = dataMap.GetString(SettingsConstants.LegalEntityFileSeperator);
         }
 
         #region Members
@@ -243,6 +244,10 @@ namespace RecurringIntegrationsScheduler.Common.JobSettings
         /// </value>
         public string PackageTemplate { get; private set; }
         
+        /// <summary>
+        /// Gets a value that describes an xml tag inside the file that should be uploaded
+        /// </summary>
+        public string LegalEntityFileSeperator { get; private set; }
         #endregion
     }
 }

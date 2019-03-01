@@ -49,6 +49,7 @@
     </Compile>
     <Compile Include="Contracts\ContractEnums.cs" />
     <Compile Include="Contracts\OdataActionsConstants.cs" />
+    <Compile Include="Helpers\FileHelper.cs" />
     <Compile Include="Helpers\FileOperationsHelper.cs" />
     <Compile Include="JobSettings\ExportJobSettings.cs" />
     <Compile Include="JobSettings\ImportJobSettings.cs" />

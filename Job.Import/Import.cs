@@ -278,7 +278,16 @@ namespace RecurringIntegrationsScheduler.Job
                         if (uploadResponse.IsSuccessStatusCode)
                         {
                             //Now send import request
-                            var importResponse = await _httpClientHelper.ImportFromPackage(blobUri.AbsoluteUri, _settings.DataProject, CreateExecutionId(_settings.DataProject), _settings.ExecuteImport, _settings.OverwriteDataProject, _settings.Company);
+                            string company = _settings.Company;
+                            if (!string.IsNullOrEmpty(_settings.LegalEntityFileSeperator))
+                            {
+                                string fileCompany = FileHelper.getCompanyFromFilePath(dataMessage.FullPath, _settings.LegalEntityFileSeperator);
+                                if (!string.IsNullOrEmpty(fileCompany))
+                                {
+                                    company = fileCompany;
+                                }
+                            }
+                            var importResponse = await _httpClientHelper.ImportFromPackage(blobUri.AbsoluteUri, _settings.DataProject, CreateExecutionId(_settings.DataProject), _settings.ExecuteImport, _settings.OverwriteDataProject, company);
 
                             if (importResponse.IsSuccessStatusCode)
                             {
