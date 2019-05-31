@@ -179,7 +179,7 @@ namespace RecurringIntegrationsScheduler.Common.Helpers
                         string company = FileHelper.getCompanyFromFilePath(filePath, uploadSettings.LegalEntityFileSeperator);
                         if (!string.IsNullOrEmpty(company))
                         {
-                            enqueueUri.Query = "&company=" + company;
+                            enqueueQuery += "&company=" + company;
                         }
                     }
                     enqueueUri.Query = enqueueQuery;
