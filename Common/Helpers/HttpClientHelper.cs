@@ -31,6 +31,7 @@ namespace RecurringIntegrationsScheduler.Common.Helpers
         private readonly Polly.Retry.AsyncRetryPolicy _retryPolicy;
 
         public string filePath;
+        public string previousCompany = "";
         /// <summary>
         /// Initializes a new instance of the <see cref="HttpClientHelper"/> class.
         /// </summary>
@@ -147,24 +148,31 @@ namespace RecurringIntegrationsScheduler.Common.Helpers
         /// </returns>
         public Uri GetEnqueueUri()
         {
-            if (_enqueueUri != null)
-                return _enqueueUri;
 
             if (_settings is UploadJobSettings uploadSettings)
             {
+                string company = "";
+                // Check if the company has been changed
+                if (uploadSettings.LegalEntityFileSeperator != "")
+                {
+                    company = FileHelper.getCompanyFromFilePath(filePath, uploadSettings.LegalEntityFileSeperator);
+                }
+                if (_enqueueUri != null
+                    && previousCompany == company)
+                { 
+                    return _enqueueUri;
+                }
+                previousCompany = company;
+
                 var enqueueUri = new UriBuilder(GetAosRequestUri("api/connector/enqueue/" + uploadSettings.ActivityId));
 
                 if (uploadSettings.IsDataPackage)
                 {
                     if (!string.IsNullOrEmpty(uploadSettings.Company))
                         enqueueUri.Query = "company=" + uploadSettings.Company;
-                    else if (!string.IsNullOrEmpty(uploadSettings.LegalEntityFileSeperator))
+                    else if (!string.IsNullOrEmpty(company))
                     {
-                        string company = FileHelper.getCompanyFromFilePath(filePath, uploadSettings.LegalEntityFileSeperator);
-                        if (!string.IsNullOrEmpty(company))
-                        {
-                            enqueueUri.Query = "company=" + company;
-                        }
+                        enqueueUri.Query = "company=" + company;
                     }
                 }
                 else // Individual file
@@ -174,13 +182,9 @@ namespace RecurringIntegrationsScheduler.Common.Helpers
                     // Append company if it is specified
                     if (!string.IsNullOrEmpty(uploadSettings.Company))
                         enqueueQuery += "&company=" + uploadSettings.Company;
-                    else if (!string.IsNullOrEmpty(uploadSettings.LegalEntityFileSeperator))
+                    else if (!string.IsNullOrEmpty(company))
                     {
-                        string company = FileHelper.getCompanyFromFilePath(filePath, uploadSettings.LegalEntityFileSeperator);
-                        if (!string.IsNullOrEmpty(company))
-                        {
-                            enqueueQuery += "&company=" + company;
-                        }
+                        enqueueQuery += "&company=" + company;
                     }
                     enqueueUri.Query = enqueueQuery;
                 }
