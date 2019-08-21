@@ -78,45 +78,80 @@ namespace RecurringIntegrationsScheduler.Job
         /// </remarks>
         public async Task Execute(IJobExecutionContext context)
         {
+            var dataMap = context.JobDetail.JobDataMap;
+            // Save the orig Values for later
+            string inputDir = dataMap.GetString(SettingsConstants.InputDir);
+            string uploadSuccessDir = dataMap.GetString(SettingsConstants.UploadSuccessDir);
+            string uploadErrorsDir = dataMap.GetString(SettingsConstants.UploadErrorsDir);
+            string origCompany = dataMap.GetString(SettingsConstants.Company);
+
             try
             {
                 log4net.Config.XmlConfigurator.Configure();
                 _context = context;
-                _settings.Initialize(context);
+                
+                string placeHolder = "???";
 
-                if (_settings.IndefinitePause)
+
+                foreach (string company in FileHelper.getCompanysFromPath(inputDir, placeHolder, origCompany))
                 {
-                    await context.Scheduler.PauseJob(context.JobDetail.Key);
-                    Log.InfoFormat(CultureInfo.InvariantCulture,
-                        string.Format(Resources.Job_0_was_paused_indefinitely, _context.JobDetail.Key));
-                    return;
+                    // Set the folderspecific company values
+                    dataMap.Put(SettingsConstants.InputDir, inputDir.Replace(placeHolder, company));
+                    dataMap.Put(SettingsConstants.UploadSuccessDir, uploadSuccessDir.Replace(placeHolder, company));
+                    dataMap.Put(SettingsConstants.UploadErrorsDir, uploadErrorsDir.Replace(placeHolder, company));
+                    dataMap.Put(SettingsConstants.Company, company);
+
+                    _settings.Initialize(context);
+
+                    // Reset to orig value
+                    dataMap.Put(SettingsConstants.InputDir, inputDir);
+                    dataMap.Put(SettingsConstants.UploadSuccessDir, uploadSuccessDir);
+                    dataMap.Put(SettingsConstants.UploadErrorsDir, uploadErrorsDir);
+                    dataMap.Put(SettingsConstants.Company, origCompany);
+
+                    if (_settings.IndefinitePause)
+                    {
+                        await context.Scheduler.PauseJob(context.JobDetail.Key);
+                        Log.InfoFormat(CultureInfo.InvariantCulture,
+                            string.Format(Resources.Job_0_was_paused_indefinitely, _context.JobDetail.Key));
+                        return;
+                    }
+
+                    _retryPolicyForIo = Policy.Handle<IOException>().WaitAndRetry(
+                        retryCount: _settings.RetryCount,
+                        sleepDurationProvider: attempt => TimeSpan.FromSeconds(_settings.RetryDelay),
+                        onRetry: (exception, calculatedWaitDuration) =>
+                        {
+                            Log.WarnFormat(CultureInfo.InvariantCulture, string.Format(Resources.Job_0_Retrying_IO_operation_Exception_1, _context.JobDetail.Key, exception.Message));
+                        });
+                    _retryPolicyForHttp = Policy.Handle<HttpRequestException>().WaitAndRetryAsync(
+                        retryCount: _settings.RetryCount,
+                        sleepDurationProvider: attempt => TimeSpan.FromSeconds(_settings.RetryDelay),
+                        onRetry: (exception, calculatedWaitDuration) =>
+                        {
+                            Log.WarnFormat(CultureInfo.InvariantCulture, string.Format(Resources.Job_0_Retrying_Http_operation_Exception_1, _context.JobDetail.Key, exception.Message));
+                        });
+
+                    if (Log.IsDebugEnabled)
+                        Log.DebugFormat(CultureInfo.InvariantCulture, string.Format(Resources.Job_0_starting, _context.JobDetail.Key));
+
+                    await Process();
+
+                    if (Log.IsDebugEnabled)
+                        Log.DebugFormat(CultureInfo.InvariantCulture, string.Format(Resources.Job_0_ended, _context.JobDetail.Key));
                 }
-
-                _retryPolicyForIo = Policy.Handle<IOException>().WaitAndRetry(
-                    retryCount: _settings.RetryCount, 
-                    sleepDurationProvider: attempt => TimeSpan.FromSeconds(_settings.RetryDelay),
-                    onRetry: (exception, calculatedWaitDuration) => 
-                    {
-                        Log.WarnFormat(CultureInfo.InvariantCulture, string.Format(Resources.Job_0_Retrying_IO_operation_Exception_1, _context.JobDetail.Key, exception.Message));
-                    });
-                _retryPolicyForHttp = Policy.Handle<HttpRequestException>().WaitAndRetryAsync(
-                    retryCount: _settings.RetryCount, 
-                    sleepDurationProvider: attempt => TimeSpan.FromSeconds(_settings.RetryDelay),
-                    onRetry: (exception, calculatedWaitDuration) => 
-                    {
-                        Log.WarnFormat(CultureInfo.InvariantCulture, string.Format(Resources.Job_0_Retrying_Http_operation_Exception_1, _context.JobDetail.Key, exception.Message));
-                    });
-
-                if (Log.IsDebugEnabled)
-                    Log.DebugFormat(CultureInfo.InvariantCulture, string.Format(Resources.Job_0_starting, _context.JobDetail.Key));
-
-                await Process();
-
-                if (Log.IsDebugEnabled)
-                    Log.DebugFormat(CultureInfo.InvariantCulture, string.Format(Resources.Job_0_ended, _context.JobDetail.Key));
             }
             catch (Exception ex)
             {
+                if (dataMap != null)
+                {
+                    // Reset to orig values if an error occured
+                    dataMap.Put(SettingsConstants.InputDir, inputDir);
+                    dataMap.Put(SettingsConstants.UploadSuccessDir, uploadSuccessDir);
+                    dataMap.Put(SettingsConstants.UploadErrorsDir, uploadErrorsDir);
+                    dataMap.Put(SettingsConstants.Company, origCompany);
+                }
+
                 if (_settings.PauseJobOnException)
                 {
                     await context.Scheduler.PauseJob(context.JobDetail.Key);

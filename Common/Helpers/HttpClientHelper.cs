@@ -153,7 +153,7 @@ namespace RecurringIntegrationsScheduler.Common.Helpers
             {
                 string company = "";
                 // Check if the company has been changed
-                if (uploadSettings.LegalEntityFileSeperator != "")
+                if (!string.IsNullOrEmpty(uploadSettings.LegalEntityFileSeperator))
                 {
                     company = FileHelper.getCompanyFromFilePath(filePath, uploadSettings.LegalEntityFileSeperator);
                 }

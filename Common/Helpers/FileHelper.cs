@@ -21,5 +21,31 @@ namespace RecurringIntegrationsScheduler.Common.Helpers
 
             return company;
         }
+        public static List<string> getCompanysFromPath(string _path, string _placeHolder, string _defaultCompany)
+        {
+            List<string> companyList = new List<string>();
+
+            if (_path.Contains(_placeHolder))
+            {
+                string mainPath = _path.Substring(0, _path.IndexOf(_placeHolder));
+                var mainDir = new DirectoryInfo(mainPath);
+                var dirList = mainDir.GetDirectories(_placeHolder);
+                foreach (DirectoryInfo subDir in mainDir.EnumerateDirectories(_placeHolder))
+                {
+                    // only add if the number of placeholders matches the number of characters of the folder (we don´t want empty letters to be considered)
+                    if (_placeHolder.Length == subDir.Name.Length)
+                        companyList.Add(subDir.Name);
+                }
+            }
+            else
+            {
+                companyList.Add(_defaultCompany);
+            }
+
+            return companyList;
+        }
+
     }
+
+
 }
