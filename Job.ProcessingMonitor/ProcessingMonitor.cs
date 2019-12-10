@@ -143,6 +143,7 @@ namespace RecurringIntegrationsScheduler.Job
                     if (Log.IsDebugEnabled)
                         Log.DebugFormat(CultureInfo.InvariantCulture, string.Format(Resources.Job_0_ended, _context.JobDetail.Key));
                 }
+                Console.ReadLine();
             }
             catch (Exception ex)
             {
